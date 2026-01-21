@@ -2,13 +2,29 @@
 # Author: Filip Bjelonic
 # Licensed under the Apache License 2.0
 
+
 import gymnasium as gym  # noqa: F401
 
+
 gym.register(
-    id="Isaac-Pace-Anymal-D-v0",
-    entry_point="isaaclab.envs:ManagerBasedRLEnv",
-    disable_env_checker=True,
-    kwargs={
-        "env_cfg_entry_point": f"{__name__}.pace.anymal_pace_env_cfg:AnymalDPaceEnvCfg"
-    },
+   id="Isaac-Pace-Anymal-D-v0",
+   entry_point="isaaclab.envs:ManagerBasedRLEnv",
+   disable_env_checker=True,
+   kwargs={
+       "env_cfg_entry_point": f"{__name__}.pace.anymal_pace_env_cfg:AnymalDPaceEnvCfg"
+   },
 )
+
+
+gym.register(
+   id="Isaac-Pace-GO2-v0",
+   entry_point="isaaclab.envs:ManagerBasedRLEnv",
+   disable_env_checker=True,
+   kwargs={
+       "env_cfg_entry_point": f"{__name__}.pace.go2_pace_env_cfg:GO2PaceEnvCfg"
+   },
+)
+
+
+
+
