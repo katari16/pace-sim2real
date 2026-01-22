@@ -134,15 +134,25 @@ def main():
    trajectory = torch.zeros((num_steps, len(joint_ids)), device=env.unwrapped.device)
    trajectory[:, :] = chirp_signal.unsqueeze(-1)
    trajectory_directions = torch.tensor(
-       [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+       [
+        1.0, 1.0, -1.0,
+        -1.0, 1.0, -1.0,
+        1.0, -1.0, -1.0,
+        -1.0, -1.0, -1.0
+        ],
        device=env.unwrapped.device
    )
    trajectory_bias = torch.tensor(
-       [0.0, 0.8, -1.5] * 4,
+       [
+       -0.1, 0.8, -1.5, 
+       0.1, 0.8, -1.5,
+       -0.1, 0.8, -1.5,
+       0.1, 0.8, -1.5,
+       ],
        device=env.unwrapped.device
    )
    trajectory_scale = torch.tensor(   
-       [0.25, 0.5, 0.4] * 4,
+       [0.1, 0.1, 0.1] * 4,
        device=env.unwrapped.device
    )
    trajectory[:, joint_ids] = (trajectory[:, joint_ids] + trajectory_bias.unsqueeze(0)) * trajectory_directions.unsqueeze(0) * trajectory_scale.unsqueeze(0)

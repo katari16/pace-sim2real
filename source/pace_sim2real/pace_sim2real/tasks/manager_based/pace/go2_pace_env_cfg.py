@@ -21,6 +21,25 @@ import torch
 
 
 
+# Anymal joint values
+# ============================================================
+# Joint Name                | Lower Limit  | Upper Limit 
+# ------------------------------------------------------------
+# LF_HAA                    |      -0.7505 |       0.5760
+# LF_HFE                    |      -8.9535 |       8.9535
+# LF_KFE                    |      -8.9535 |       8.9535
+# RF_HAA                    |      -0.5760 |       0.7505
+# RF_HFE                    |      -8.9535 |       8.9535
+# RF_KFE                    |      -8.9535 |       8.9535
+# LH_HAA                    |      -0.7505 |       0.5760
+# LH_HFE                    |      -8.9535 |       8.9535
+# LH_KFE                    |      -8.9535 |       8.9535
+# RH_HAA                    |      -0.5760 |       0.7505
+# RH_HFE                    |      -8.9535 |       8.9535
+# RH_KFE                    |      -8.9535 |       8.9535
+# ============================================================
+
+
 # ------------------
 #unitree motor condif values:
 
@@ -109,67 +128,25 @@ import torch
 # -----------------
 
 
-
-
 # ============================================================
-
-
-# Joint Name                | Lower Limit  | Upper Limit
-
-
+# Joint Name                | Lower Limit  | Upper Limit 
 # ------------------------------------------------------------
-
-
 # FR_hip_joint              |      -0.9425 |       0.9425
-
-
-# FL_hip_joint              |      -0.9425 |       0.9425
-
-
-# RR_hip_joint              |      -0.9425 |       0.9425
-
-
-# RL_hip_joint              |      -0.9425 |       0.9425
-
-
-
-
-# RR_thigh_joint            |      -0.2705 |       4.2848
-
-
-# RL_thigh_joint            |      -0.2705 |       4.2848
-
-
 # FR_thigh_joint            |      -1.3177 |       3.2376
-
-
-# FL_thigh_joint            |      -1.3177 |       3.2376
-
-
-
-
 # FR_calf_joint             |      -2.6285 |      -0.9320
-
-
+# FL_hip_joint              |      -0.9425 |       0.9425
+# FL_thigh_joint            |      -1.3177 |       3.2376
 # FL_calf_joint             |      -2.6285 |      -0.9320
-
-
+# RR_hip_joint              |      -0.9425 |       0.9425
+# RR_thigh_joint            |      -0.2705 |       4.2848
 # RR_calf_joint             |      -2.6285 |      -0.9320
-
-
+# RL_hip_joint              |      -0.9425 |       0.9425
+# RL_thigh_joint            |      -0.2705 |       4.2848
 # RL_calf_joint             |      -2.6285 |      -0.9320
-
-
 # ============================================================
 
 
-
-
-
-
-
-
-
+# ============================================================
 
 GO2HV_PACE_ACTUATOR_CFG = PaceDCMotorCfg(
    joint_names_expr=[".*"],
@@ -182,10 +159,6 @@ GO2HV_PACE_ACTUATOR_CFG = PaceDCMotorCfg(
    max_delay=10,  # max delay in simulation steps
    #friction=0.01, not in the example cfg for pace
 )
-
-
-
-
 
 
 @configclass
@@ -225,12 +198,11 @@ class GO2PaceSceneCfg(PaceSim2realSceneCfg):
        init_state=ArticulationCfg.InitialStateCfg(
            pos=(0.0, 0.0, 1.0),
            joint_pos={
-           ".*R_hip_joint": -0.1,
-           ".*L_hip_joint": 0.1,
-           "F[L,R]_thigh_joint": 0.8,
-           "R[L,R]_thigh_joint": 1.0,
+           ".*R_hip_joint": 0.0,
+           ".*L_hip_joint": 0.0,
+           "F[L,R]_thigh_joint": 0.0,
+           "R[L,R]_thigh_joint": 0.0,
                ".*_calf_joint": -1.5,},
-           joint_vel={".*": 0.0},
        ),
        actuators={"GO2HV": GO2HV_PACE_ACTUATOR_CFG})
 
