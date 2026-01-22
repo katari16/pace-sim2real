@@ -133,30 +133,24 @@ def main():
 
    trajectory = torch.zeros((num_steps, len(joint_ids)), device=env.unwrapped.device)
    trajectory[:, :] = chirp_signal.unsqueeze(-1)
-   trajectory_directions = torch.tensor(
-       [
-        1.0, 1.0, -1.0,
-        -1.0, 1.0, -1.0,
-        1.0, -1.0, -1.0,
-        -1.0, -1.0, -1.0
-        ],
+   trajectory_directions = torch.tensor([1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0],
        device=env.unwrapped.device
    )
    trajectory_bias = torch.tensor(
        [
-       -0.1, 0.8, -1.5, 
-       0.1, 0.8, -1.5,
-       -0.1, 0.8, -1.5,
-       0.1, 0.8, -1.5,
+       0.0, 0.8, -1.5, 
+       0.0, 0.8, -1.5,
+       0.0, 1.0, -1.5,
+       0.0, 1.0, -1.5,
        ],
        device=env.unwrapped.device
-   )
+   )    
    trajectory_scale = torch.tensor(   
-       [0.1, 0.1, 0.1] * 4,
+       [0.06, 0.01, 0.5] * 4,
        device=env.unwrapped.device
    )
    trajectory[:, joint_ids] = (trajectory[:, joint_ids] + trajectory_bias.unsqueeze(0)) * trajectory_directions.unsqueeze(0) * trajectory_scale.unsqueeze(0)
-
+   #trajectory[:, joint_ids] = (trajectory[:, joint_ids] * trajectory_scale.unsqueeze(0) * trajectory_directions.unsqueeze(0)) + trajectory_bias.unsqueeze(0)
 
    articulation.write_joint_position_to_sim(trajectory[0, :].unsqueeze(0) + bias[0, joint_ids])
    articulation.write_joint_velocity_to_sim(torch.zeros((1, len(joint_ids)), device=env.unwrapped.device))
