@@ -127,7 +127,8 @@ def main():
 
 
    # Linear chirp: phase = 2*pi*(f0*t + (f1-f0)/(2*duration)*t^2)
-   phase = 2 * pi * (f0 * t + ((f1 - f0) / (2 * duration)) * t ** 2)
+   # phase = 2 * pi * (f0 * t + ((f1 - f0) / (2 * duration)) * t ** 2)
+   phase = 2 * pi * 0.5 * t
    chirp_signal = torch.sin(phase)
 
 
