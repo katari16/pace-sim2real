@@ -109,18 +109,61 @@ if plot_score:
     plt.grid()
     plt.show()
 
+# if plot_trajectory:
+#     for i in range(len(joint_order)):
+#         plt.figure(figsize=(8, 4.5))
+#         plt.plot(time, trajectories[:, i].cpu().numpy() - encoder_bias[i].item(), c="tab:orange", label="Sim", linewidth=2)  # in encoder frame
+#         plt.plot(time, real_trajectories[:, i].cpu().numpy(), label="Real", c="tab:green", linestyle="--", linewidth=2)
+#         plt.plot(time, target_trajectories[:, i].cpu().numpy(), c="grey", label="Target", linestyle="--", alpha=0.5)
+#         plt.title(f"Joint {joint_order[i]}")  # Use joint names from config
+#         plt.xlabel("Time [s]")
+#         plt.ylabel("Joint position [rad]")
+#         plt.legend()
+#         plt.grid()
+#         plt.tight_layout()
+#         plt.show()
+
+
 if plot_trajectory:
+    # Create a 4x3 grid (4 legs, 3 joints each)
+    fig, axes = plt.subplots(4, 3, figsize=(18, 12), sharex=True)
+    axes = axes.flatten()  # Flatten to iterate easily over 12 joints
+
     for i in range(len(joint_order)):
-        plt.figure(figsize=(8, 4.5))
-        plt.plot(time, trajectories[:, i].cpu().numpy() - encoder_bias[i].item(), c="tab:orange", label="Sim", linewidth=2)  # in encoder frame
-        plt.plot(time, real_trajectories[:, i].cpu().numpy(), label="Real", c="tab:green", linestyle="--", linewidth=2)
-        plt.plot(time, target_trajectories[:, i].cpu().numpy(), c="grey", label="Target", linestyle="--", alpha=0.5)
-        plt.title(f"Joint {joint_order[i]}")  # Use joint names from config
-        plt.xlabel("Time [s]")
-        plt.ylabel("Joint position [rad]")
-        plt.legend()
-        plt.grid()
-        plt.tight_layout()
-        plt.show()
+        ax = axes[i]
+        
+        # Sim (In encoder frame)
+        ax.plot(time, trajectories[:, i].cpu().numpy() - encoder_bias[i].item(), 
+                c="tab:orange", label="Sim", linewidth=2)
+        
+        # Real
+        ax.plot(time, real_trajectories[:, i].cpu().numpy(), 
+                label="Real", c="tab:green", linestyle="--", linewidth=2)
+        
+        # Target
+        ax.plot(time, target_trajectories[:, i].cpu().numpy(), 
+                c="grey", label="Target", linestyle="--", alpha=0.5)
+        
+        ax.set_title(f"Joint {joint_order[i]}", fontsize=10)
+        ax.grid(True)
+        
+        # Only show labels on the left-most and bottom-most plots to keep it clean
+        if i % 3 == 0:
+            ax.set_ylabel("Pos [rad]")
+        if i >= 9:
+            ax.set_xlabel("Time [s]")
+            
+        # Place legend only on the first subplot to save space
+        if i == 0:
+            ax.legend(loc="upper right")
+
+    plt.suptitle(f"Joint Trajectories Comparison - {robot_name} (Params: {params_num})", fontsize=16)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95]) # Adjust for suptitle
+    
+    # Save as one big file
+    save_path = log_dir / f"trajectory_comparison_{params_num}.png"
+    plt.savefig(save_path, dpi=300)
+    print(f"Plot saved to: {save_path}")
+    plt.show()
 
 print("Plotting complete.")

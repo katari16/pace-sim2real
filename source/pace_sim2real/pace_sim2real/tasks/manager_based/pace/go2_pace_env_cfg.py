@@ -150,8 +150,8 @@ import torch
 
 GO2HV_PACE_ACTUATOR_CFG = PaceDCMotorCfg(
    joint_names_expr=[".*"],
-   stiffness={".*": 25.0},  # P gain in Nm/rad
-   damping={".*": 0.5},  # D gain in Nm s/rad
+   stiffness={".*": 60.0},  # P gain in Nm/rad
+   damping={".*": 5.0},  # D gain in Nm s/rad
    saturation_effort=23.4, # Unitree Y2
    effort_limit=20.2,      # Unitree Y1
    velocity_limit=30.0,    # Unitree X2
@@ -176,6 +176,8 @@ class GO2PaceCfg(PaceCfg):
    ]
 
 
+
+
    def __post_init__(self):
        # set bounds for parameters
        #for go2 damping smaller, smaller max armature
@@ -197,13 +199,20 @@ class GO2PaceSceneCfg(PaceSim2realSceneCfg):
        prim_path="{ENV_REGEX_NS}/Robot",
        init_state=ArticulationCfg.InitialStateCfg(
            pos=(0.0, 0.0, 1.0),
-           joint_pos={
-            ".*R_hip_joint": 0.0,
-            ".*L_hip_joint": 0.0,
-            "F[L,R]_thigh_joint": 0.8,
-            "R[L,R]_thigh_joint": 1.0,
-            ".*_calf_joint": -1.5,
-               },
+         #   joint_pos={
+         #    ".*R_hip_joint": 0.0,
+         #    ".*L_hip_joint": 0.0,
+         #    "F[L,R]_thigh_joint": 0.8,
+         #    "R[L,R]_thigh_joint": 1.0,
+         #    ".*_calf_joint": -1.8,
+         #       },
+         joint_pos={
+            "F[L,R]_hip_joint": 0.0,
+            "F[L,R]_hip_joint": 0.0,   
+            "F[L,R]_thigh_joint": 0.0,
+            "R[L,R]_thigh_joint": 0.0,
+            ".*_calf_joint": -1.8,
+         },
        ),
        actuators={"GO2HV": GO2HV_PACE_ACTUATOR_CFG})
 
@@ -216,6 +225,7 @@ class GO2PaceEnvCfg(PaceSim2realEnvCfg):
 
    scene: GO2PaceSceneCfg = GO2PaceSceneCfg()
    sim2real: PaceCfg = GO2PaceCfg()
+
 
 
    def __post_init__(self):
