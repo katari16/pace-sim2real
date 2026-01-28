@@ -73,7 +73,7 @@ def main():
         population_size=env.unwrapped.num_envs,
         log_dir=log_dir,
         joint_order=joint_order,
-        max_iteration=40,
+        max_iteration=25,
         # max_iteration=env_cfg.sim2real.cmaes.max_iteration,
         data=data,
         device=env.unwrapped.device,

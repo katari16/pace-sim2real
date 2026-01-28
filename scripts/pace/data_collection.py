@@ -152,7 +152,7 @@ def main():
     )    
     trajectory_scale = torch.tensor(   
     #    [0.06, 0.01, 0.3] * 4, lead to stable motion. just thigh and hip nopt moving a lot
-        [0.25, 0.2, 0.3] * 4,
+        [0.3, 0.3, 0.3] * 4,
         device=env.unwrapped.device
     )
     trajectory[:, joint_ids] = (trajectory[:, joint_ids] + trajectory_bias.unsqueeze(0)) * trajectory_directions.unsqueeze(0) * trajectory_scale.unsqueeze(0)
