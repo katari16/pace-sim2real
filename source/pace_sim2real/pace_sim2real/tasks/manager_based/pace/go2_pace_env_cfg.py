@@ -165,7 +165,9 @@ GO2HV_PACE_ACTUATOR_CFG = PaceDCMotorCfg(
 class GO2PaceCfg(PaceCfg):
    """Pace configuration for GO2 robot."""
    robot_name: str = "go2_sim"
-   data_dir: str = "go2_sim/chirp_data.pt"  # located in pace_sim2real/data/anymal_d_sim/chirp_data.pt
+   # data_dir: str = "go2_sim/chirp_data.pt"  # located in pace_sim2real/data/anymal_d_sim/chirp_data.pt
+   data_dir: str = "go2_sim/data_p60d5/chirp_data_7f1.pt"  # located in pace_sim2real/data/anymal_d_sim/chirp_data.pt
+
    bounds_params: torch.Tensor = torch.zeros((49, 2))  # 12 + 12 + 12 + 12 + 1 = 49 parameters to optimize
    joint_order: list[str] = [
        # same order as in unitree.py

@@ -905,3 +905,226 @@ sigma=0.7  # More initial diversity
 1. Validate on held-out trajectories
 2. Test with different PD gains
 3. Gradually deploy to hardware per PACE best practices
+
+---
+
+# PD Gain Analysis: Effect on Data Quality (January 28, 2026)
+
+## Overview
+
+New data was collected with two different PD gain settings to understand their effect on system identification quality:
+
+| Setting | P Gain | D Gain | Behavior |
+|---------|--------|--------|----------|
+| Low Gains | 25 | 0.5 | Underdamped, resonant, unstable at high freq |
+| High Gains | 60 | 5.0 | Overdamped, stable, attenuates high freq |
+
+**Data Location:**
+- Low gains: `data/go2_sim/data_p25d0_5/`
+- High gains: `data/go2_sim/data_p60d5/`
+
+---
+
+## Data Summary
+
+### P=25, D=0.5 (Low Gains)
+
+| File | f1 (Hz) | Cmd Range | Meas Range | Ratio | Mean Error |
+|------|---------|-----------|------------|-------|------------|
+| chirp_data_2f1.pt | 2.0 | 0.433 rad | 0.465 rad | 1.07x | 0.045 rad |
+| chirp_data_2_5f1.pt | 2.5 | 0.433 rad | 0.512 rad | 1.18x | 0.053 rad |
+| chirp_data_2_8f1.pt | 2.8 | 0.433 rad | 0.534 rad | 1.23x | 0.059 rad |
+| chirp_data_3f1.pt | 3.0 | 0.433 rad | 0.550 rad | 1.27x | 0.063 rad |
+| chirp_data_3_2_f1.pt | 3.2 | 0.433 rad | 0.567 rad | 1.31x | 0.067 rad |
+
+**Observations:**
+- Scale used: `[0.2, 0.2, 0.25] * 4` (smaller due to instability)
+- Range ratio > 1.0 indicates **amplification** (resonance)
+- Ratio increases with frequency (approaching resonance)
+- Robot became unstable beyond f1 = 3.2 Hz
+- Mean error is relatively low (0.045-0.067 rad)
+
+### P=60, D=5 (High Gains)
+
+| File | f1 (Hz) | Cmd Range | Meas Range | Ratio | Mean Error |
+|------|---------|-----------|------------|-------|------------|
+| chirp_data_3f1.pt | 3.0 | 0.600 rad | 0.571 rad | 0.95x | 0.125 rad |
+| chirp_data_4f1.pt | 4.0 | 0.600 rad | 0.568 rad | 0.95x | 0.142 rad |
+| chirp_data_5f1.pt | 5.0 | 0.600 rad | 0.565 rad | 0.94x | 0.153 rad |
+| chirp_data_6f1.pt | 6.0 | 0.600 rad | 0.562 rad | 0.94x | 0.161 rad |
+| chirp_data_6_5f1.pt | 6.5 | 0.600 rad | 0.561 rad | 0.93x | 0.166 rad |
+| chirp_data_7f1.pt | 7.0 | 0.600 rad | 0.559 rad | 0.93x | 0.169 rad |
+
+**Observations:**
+- Scale used: `[0.3, 0.3, 0.3] * 4` (larger since stable)
+- Range ratio < 1.0 indicates **attenuation** (overdamped)
+- Ratio stays nearly constant across frequencies
+- Robot remained stable up to f1 = 7 Hz
+- Mean error is higher (0.125-0.169 rad) due to phase lag
+
+---
+
+## Physics Explanation: Why the Difference?
+
+### Second-Order System Dynamics
+
+A joint-level PD controller creates a second-order system:
+
+```
+Transfer Function: G(s) = Kp / (Js² + Ds + Kp)
+
+Where:
+- J = joint inertia (including motor rotor)
+- D = damping coefficient (D gain)
+- Kp = stiffness (P gain)
+
+Natural frequency: ωn = √(Kp/J)
+Damping ratio: ζ = D / (2√(Kp·J))
+```
+
+### Low Gains (P=25, D=0.5)
+
+```
+Assuming J ≈ 0.05 kgm²:
+- ωn = √(25/0.05) = √500 ≈ 22.4 rad/s ≈ 3.6 Hz
+- ζ = 0.5 / (2√(25·0.05)) = 0.5 / 2.24 ≈ 0.22
+
+ζ = 0.22 < 1 → UNDERDAMPED
+```
+
+**Consequences:**
+- System has resonance peak near ωn ≈ 3-4 Hz
+- Amplitude increases as frequency approaches resonance
+- Beyond resonance, system becomes unstable
+- This explains why robot became unstable at f1 > 3.2 Hz
+
+### High Gains (P=60, D=5)
+
+```
+Assuming J ≈ 0.05 kgm²:
+- ωn = √(60/0.05) = √1200 ≈ 34.6 rad/s ≈ 5.5 Hz
+- ζ = 5 / (2√(60·0.05)) = 5 / 3.46 ≈ 1.44
+
+ζ = 1.44 > 1 → OVERDAMPED
+```
+
+**Consequences:**
+- No resonance peak (overdamped)
+- High frequencies are attenuated (low-pass filter behavior)
+- System remains stable at all tested frequencies
+- Phase lag increases with frequency → higher tracking error
+
+---
+
+## Visualization
+
+![PD Gain Comparison](pd_gain_comparison.png)
+
+The figure shows:
+1. **Time series:** Low gains show larger measured amplitude (red exceeds blue at peaks)
+2. **Amplitude response:** Low gains amplify (ratio > 1), high gains attenuate (ratio < 1)
+3. **Tracking error:** Low gains have lower error, high gains have higher error
+4. **Error distribution:** Different error profiles between the two settings
+
+---
+
+## Which Data Should Be Used for PACE?
+
+### Recommendation: **Use P=60, D=5 data (High Gains) with f1=7Hz**
+
+**Reasoning:**
+
+| Criterion | P=25, D=0.5 | P=60, D=5 | Winner |
+|-----------|-------------|-----------|--------|
+| Stability | Unstable > 3.2Hz | Stable to 7Hz | P=60 |
+| Frequency range | 0.1-3.2 Hz | 0.1-7 Hz | P=60 |
+| Information content | Resonance dynamics | Motor dynamics | P=60* |
+| Safety margin | Low | High | P=60 |
+| Reproducibility | Variable | Consistent | P=60 |
+
+*While resonance provides "interesting" dynamics, it's not representative of normal robot operation and may confuse the optimizer.
+
+### Why Not Use Low Gain Data?
+
+1. **Limited frequency range:** Can only go up to 3.2 Hz before instability
+2. **Resonance is not a motor property:** It's a closed-loop artifact, not the motor dynamics we want to identify
+3. **Non-representative:** The robot won't operate near resonance in practice
+4. **Safety risk:** Parameters identified from unstable data may cause issues on hardware
+
+### Why High Gain Data is Better
+
+1. **Wider frequency excitation:** 0.1-7 Hz covers more dynamics
+2. **Higher tracking error = more information:** The 0.17 rad error contains information about motor response
+3. **Stable and safe:** Parameters will be valid for normal operation
+4. **Phase information:** The attenuation and phase lag reveal motor bandwidth limits
+
+### Specific File Recommendation
+
+**Best choice: `data_p60d5/chirp_data_7f1.pt`**
+
+- Highest frequency range (most dynamics information)
+- Stable throughout
+- Good tracking error (0.17 rad mean) for parameter identification
+
+---
+
+## Alternative Approach: Multiple Trajectory Validation
+
+Per PACE best practices, a robust identification should validate across multiple trajectories.
+
+**Suggested workflow:**
+
+1. **Train on:** `data_p60d5/chirp_data_7f1.pt` (high freq, stable)
+2. **Validate on:**
+   - `data_p60d5/chirp_data_4f1.pt` (mid freq)
+   - `data_p60d5/chirp_data_3f1.pt` (low freq)
+   - `data_p25d0_5/chirp_data_2f1.pt` (different gains, if brave)
+
+If the identified parameters generalize across these trajectories, the identification is robust.
+
+---
+
+## How to Switch Training Data
+
+To use a different data file, modify `go2_pace_env_cfg.py`:
+
+```python
+# Current (line 168):
+data_dir: str = "go2_sim/chirp_data.pt"
+
+# To use 7Hz high-gain data:
+data_dir: str = "go2_sim/data_p60d5/chirp_data_7f1.pt"
+```
+
+Or copy the desired file to replace the default:
+
+```bash
+cp data/go2_sim/data_p60d5/chirp_data_7f1.pt data/go2_sim/chirp_data.pt
+```
+
+Remember to also fix the time offset in the new file:
+
+```bash
+python3 -c "
+import torch
+data = torch.load('data/go2_sim/chirp_data.pt')
+data['time'] = data['time'] - data['time'][0]
+torch.save(data, 'data/go2_sim/chirp_data.pt')
+print('Time offset fixed!')
+"
+```
+
+---
+
+## Summary: PD Gain Selection Trade-offs
+
+| Aspect | Low P, Low D | High P, High D |
+|--------|--------------|----------------|
+| Behavior | Underdamped (bouncy) | Overdamped (sluggish) |
+| Resonance | Yes (amplifies) | No (attenuates) |
+| Max safe freq | ~3 Hz | ~10+ Hz |
+| Tracking error | Lower | Higher |
+| Information | Resonance dynamics | Motor dynamics |
+| For PACE | Not recommended | **Recommended** |
+
+**Key insight:** For system identification, we want to excite the **motor/actuator dynamics**, not the **closed-loop resonance**. High gain data reveals motor behavior; low gain data reveals controller artifacts.
