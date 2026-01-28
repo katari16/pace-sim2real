@@ -182,7 +182,7 @@ class GO2PaceCfg(PaceCfg):
        # set bounds for parameters
        #for go2 damping smaller, smaller max armature. Increased boundaries of the encoder bias boiunds after convergence issues
        self.bounds_params[:12, 0] = 1e-5
-       self.bounds_params[:12, 1] = 0.05  # armature between 1e-5 - 1.0 [kgm2]
+       self.bounds_params[:12, 1] = 0.2  # armature between 1e-5 - 1.0 [kgm2]
        self.bounds_params[12:24, 1] = 3.0  # dof_damping between 0.0 - 7.0 [Nm s/rad]
        self.bounds_params[24:36, 1] = 0.5  # friction between 0.0 - 0.5
        self.bounds_params[36:48, 0] = -0.3

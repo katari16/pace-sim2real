@@ -78,7 +78,8 @@ def main():
         data=data,
         device=env.unwrapped.device,
         epsilon=env_cfg.sim2real.cmaes.epsilon,
-        sigma=env_cfg.sim2real.cmaes.sigma,
+        # sigma=env_cfg.sim2real.cmaes.sigma,        
+        sigma=0.7,
         save_interval=env_cfg.sim2real.cmaes.save_interval,
         save_optimization_process=True,
     )
