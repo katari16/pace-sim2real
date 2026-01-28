@@ -180,13 +180,13 @@ class GO2PaceCfg(PaceCfg):
 
    def __post_init__(self):
        # set bounds for parameters
-       #for go2 damping smaller, smaller max armature
+       #for go2 damping smaller, smaller max armature. Increased boundaries of the encoder bias boiunds after convergence issues
        self.bounds_params[:12, 0] = 1e-5
        self.bounds_params[:12, 1] = 0.05  # armature between 1e-5 - 1.0 [kgm2]
        self.bounds_params[12:24, 1] = 3.0  # dof_damping between 0.0 - 7.0 [Nm s/rad]
        self.bounds_params[24:36, 1] = 0.5  # friction between 0.0 - 0.5
-       self.bounds_params[36:48, 0] = -0.1
-       self.bounds_params[36:48, 1] = 0.1  # bias between -0.1 - 0.1 [rad]
+       self.bounds_params[36:48, 0] = -0.3
+       self.bounds_params[36:48, 1] = 0.3  # bias between -0.1 - 0.1 [rad]
        self.bounds_params[48, 1] = 10.0  # delay between 0.0 - 10.0 [sim steps]
 
 
@@ -233,9 +233,9 @@ class GO2PaceEnvCfg(PaceSim2realEnvCfg):
        super().__post_init__()
 
 
-       # robot sim and control settings
-       self.sim.dt = 0.0025  # 400Hz simulation
-       self.decimation = 1  # 400Hz control
+       # robot sim and control settings - must match the sampling of the collected data file
+       self.sim.dt = 0.002  # 500Hz simulation
+       self.decimation = 1  # 500Hz control
 
 
 
