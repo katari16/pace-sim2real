@@ -150,8 +150,8 @@ import torch
 
 GO2HV_PACE_ACTUATOR_CFG = PaceDCMotorCfg(
    joint_names_expr=[".*"],
-   stiffness={".*": 60.0},  # P gain in Nm/rad
-   damping={".*": 5.0},  # D gain in Nm s/rad
+   stiffness={".*": 25.0},  # P gain in Nm/rad
+   damping={".*": 0.5},  # D gain in Nm s/rad
    saturation_effort=23.4, # Unitree Y2
    effort_limit=20.2,      # Unitree Y1
    velocity_limit=30.0,    # Unitree X2
@@ -166,7 +166,7 @@ class GO2PaceCfg(PaceCfg):
    """Pace configuration for GO2 robot."""
    robot_name: str = "go2_sim"
    # data_dir: str = "go2_sim/chirp_data.pt"  # located in pace_sim2real/data/anymal_d_sim/chirp_data.pt
-   data_dir: str = "go2_sim/data_p25d0_5/chirp_data_3f1.pt"  # located in pace_sim2real/data/anymal_d_sim/chirp_data.pt
+   data_dir: str = "go2_sim/09_03_data_torques/20260309_172352_f00.10_f19.0_p25_d0.5_sh0.15_st0.20_sc0.08.pt"  # located in pace_sim2real/data/anymal_d_sim/chirp_data.pt
    # data_dir: str = "go2_sim/data_p60d5/chirp_data_7f1.pt"  # located in pace_sim2real/data/anymal_d_sim/chirp_data.pt
 
 
